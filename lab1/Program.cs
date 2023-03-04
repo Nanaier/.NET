@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace lab1
 {
@@ -37,12 +37,12 @@ namespace lab1
             var salary12 = new MonthlySalary(12, 567890123, new DateTime(2022, 2, 1), 5800.0m);
 
 
-            var salaries1 = new List<MonthlySalary> { salary1, salary2, salary11, salary12 };
-            var salaries2 = new List<MonthlySalary> { salary3, salary4, salary7, salary10 };
-            var salaries3 = new List<MonthlySalary> { salary5, salary6, salary8, salary9 };
-            var employees1 = new List<Employee> { employee1, employee4 };
-            var employees2 = new List<Employee> { employee2, employee3};
-            var employees3 = new List<Employee> { employee5, employee6 };
+            var salaries1 = new List< MonthlySalary> { salary1, salary2, salary11, salary12 };
+            var salaries2 = new List< MonthlySalary> { salary3, salary4, salary7, salary10 };
+            var salaries3 = new List< MonthlySalary> { salary5, salary6, salary8, salary9 };
+            var employees1 = new List< Employee> { employee1, employee4 };
+            var employees2 = new List< Employee> { employee2, employee3};
+            var employees3 = new List< Employee> { employee5, employee6 };
             // Add the employees and salaries to the department
             department1.AddEmployees(employees1);
             department2.AddEmployees(employees2);
