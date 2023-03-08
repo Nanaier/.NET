@@ -1,3 +1,6 @@
 net.sln
 net/
 lab2/
+obj/
+bin/Debug/netcoreapp3.1/
+.csproj
