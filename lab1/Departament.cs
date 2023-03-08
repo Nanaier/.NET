@@ -4,6 +4,14 @@ using System.Text;
 
 namespace lab1
 {
+    /*
+     The Department class represents a department in an organization and contains information about its employees and salaries. 
+     It has an Id and a Name property that are set through the constructor and cannot be modified after that. It also has private fields _employees
+     and _salaries which are lists of Employee and MonthlySalary objects respectively.The class provides four methods to add employees and salaries
+     to the department. AddEmployee and AddEmployees take a single Employee object or a list of Employee objects respectively and add them to the _employees
+     list. Similarly, AddSalary and AddSalaries take a single MonthlySalary object or a list of MonthlySalary objects respectively and add them to the _salaries list.
+     The Employees and Salaries properties are read-only and return a read-only list of the department's employees and salaries respectively.
+     */
     public class Department
     {
         public int Id { get; }

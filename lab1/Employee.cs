@@ -4,6 +4,12 @@ using System.Text;
 
 namespace lab1
 {
+    /*
+     The Employee class represents an employee in a company and has various properties that provide information about the employee,
+     such as their name, date of birth, education, specialty, and type of employment.The class has a constructor that initializes
+     the object with the necessary properties. The EmployeeType enum is also defined to provide two options for the type of employment - full-time and part-time.
+     */
+
     public class Employee
     {
         public int Id { get; }
