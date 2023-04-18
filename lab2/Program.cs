@@ -161,6 +161,7 @@ namespace lab2
                         }
                         Console.WriteLine("\n");
                     }
+
                 }
             }
 

@@ -1,6 +1,9 @@
 net.sln
 net/
-lab2/
 lab1/obj/
 lab1/bin/Debug/netcoreapp3.1/
 lab1.csproj
+lab2.csproj
+lab2/obj/
+lab3/obj/
+lab3/bin/Debug/netcoreapp3.1/

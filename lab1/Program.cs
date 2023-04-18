@@ -289,7 +289,7 @@ namespace lab1
             var query18 = from e in enterprise.Departments.SelectMany(d => d.Employees)
                           join salary in enterprise.Departments.SelectMany(d => d.Salaries)
                           on e.TaxpayerRegistrationNumber equals salary.TaxpayerRegistrationNumber
-                          where salary.Month == new DateTime(2022, 2, 1)
+                          where salary.Month == new DateTime(2022, 1, 1)
                           orderby e.Type ascending, salary.Amount descending, e.Surname ascending
                           select new
                           {
@@ -327,11 +327,7 @@ namespace lab1
             {
                 Console.WriteLine($"\t{group.Department}\t{group.EmployeeType}\t{group.EmployeeCount}");
             }
-
-
-
         }
-    
-}
     }
+}
 
