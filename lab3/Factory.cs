@@ -5,32 +5,61 @@ using System.Linq;
 
 namespace lab3
 {
-    public class CipherFactory
+    abstract class Ciphers
     {
-        public ICipher CreateCipher(string cipherType)
-        {
-            switch (cipherType)
-            {
-                case "caesar":
-                    return new CaesarCipher();
-                case "vigenere":
-                    return new VigenereCipher();
-                case "railfence":
-                    return new RailFenceCipher();
-                default:
-                    throw new ArgumentException("Invalid cipher type");
-            }
-        }
-    }
-    public interface ICipher
-    {
-        string Encrypt(string plaintext, string key);
-        string Decrypt(string ciphertext, string key);
+        public abstract Encrypt CreateEncrypt();
+        public abstract Decrypt CreateDecrypt();
     }
 
-    public class CaesarCipher : ICipher
+    class Cesar : Ciphers
     {
-        public string Encrypt(string plaintext, string key)
+        public override Encrypt CreateEncrypt()
+        {
+            return new EncryptCesar();
+        }
+        public override Decrypt CreateDecrypt()
+        {
+            return new DecryptCesar();
+        }
+    }
+
+    class Vigenere : Ciphers
+    {
+        public override Encrypt CreateEncrypt()
+        {
+            return new EncodeVigenere();
+        }
+        public override Decrypt CreateDecrypt()
+        {
+            return new DecryptVigenere();
+        }
+    }
+
+    class RailFence : Ciphers
+    {
+        public override Encrypt CreateEncrypt()
+        {
+            return new EncodeRailFence();
+        }
+        public override Decrypt CreateDecrypt()
+        {
+            return new DecryptRailFence();
+        }
+    }
+
+    abstract class Encrypt
+    {
+        public abstract string Encrypting(string plaintext, string key);
+    }
+
+    abstract class Decrypt
+    {
+        public abstract string Decrypting(string ciphertext, string key);
+    }
+
+    class EncryptCesar : Encrypt
+    {
+        public override string Encrypting(string plaintext, string key)
         {
             int shift = int.Parse(key);
             StringBuilder ciphertext = new StringBuilder();
@@ -51,7 +80,11 @@ namespace lab3
 
             return ciphertext.ToString();
         }
-        public string Decrypt(string ciphertext, string key)
+    }
+
+    class DecryptCesar : Decrypt
+    {
+        public override string Decrypting(string ciphertext, string key)
         {
             int shift = int.Parse(key);
             StringBuilder plaintext = new StringBuilder();
@@ -74,14 +107,9 @@ namespace lab3
         }
     }
 
-    public class VigenereCipher : ICipher
+    class EncodeVigenere : Encrypt
     {
-        private static int Mod(int a, int b)
-        {
-            return (a % b + b) % b;
-        }
-
-        public string Encrypt(string plaintext, string key)
+        public override string Encrypting(string plaintext, string key)
         {
             for (int i = 0; i < key.Length; ++i)
                 if (!char.IsLetter(key[i]))
@@ -110,8 +138,15 @@ namespace lab3
 
             return output;
         }
+        private static int Mod(int a, int b)
+        {
+            return (a % b + b) % b;
+        }
+    }
 
-        public string Decrypt(string ciphertext, string key)
+    class DecryptVigenere : Decrypt
+    {
+        public override string Decrypting(string ciphertext, string key)
         {
             for (int i = 0; i < key.Length; ++i)
                 if (!char.IsLetter(key[i]))
@@ -140,11 +175,17 @@ namespace lab3
             }
 
             return output;
-        } 
+        }
+        private static int Mod(int a, int b)
+        {
+            return (a % b + b) % b;
+        }
     }
-    public class RailFenceCipher: ICipher
+
+
+    class EncodeRailFence : Encrypt
     {
-        public string Encrypt(string plaintext, string key)
+        public override string Encrypting(string plaintext, string key)
         {
             int _rails = int.Parse(key);
             var railStr = new string[_rails];
@@ -164,7 +205,11 @@ namespace lab3
             }
             return railStr.Aggregate("", (x, y) => x + y);
         }
-        public string Decrypt(string ciphertext, string key)
+    }
+
+    class DecryptRailFence : Decrypt
+    {
+        public override string Decrypting(string ciphertext, string key)
         {
             int _rails = int.Parse(key);
 
@@ -188,6 +233,7 @@ namespace lab3
             }
             return decodeStr;
         }
+
         private List<string> FillTextToRails(string input, int[] trackLen, int _rails)
         {
             var list = new List<string>();
@@ -218,6 +264,64 @@ namespace lab3
                 }
             }
             return dumb.Select(s => s.Length).ToArray();
+        }
+    }
+
+    class Text
+    {
+        private Encrypt _encrypt;
+        private Decrypt _decrypt;
+
+        public Text(Ciphers cipher)
+        {
+            _encrypt = cipher.CreateEncrypt();
+            _decrypt = cipher.CreateDecrypt();
+        }
+
+        public string Encrypt(string plaintext, string key)
+        {
+            return _encrypt.Encrypting(plaintext, key);
+        }
+
+        public string Decrypt(string ciphertext, string key)
+        {
+            return _decrypt.Decrypting(ciphertext, key);
+        }
+    }
+
+    public class CipherFactory
+    {
+        public void CreateCipher(string cipherType, string input, string key)
+        {
+            switch (cipherType)
+            {
+                case "caesar":
+                    Ciphers cipher = new Cesar();
+                    Text text = new Text(cipher);
+                    string encrypted = text.Encrypt(input, key);
+                    string decrypted = text.Decrypt(encrypted, key);
+                    Console.WriteLine($"Encrypted text using {cipherType} cipher: {encrypted}");
+                    Console.WriteLine($"Decrypted text using {cipherType} cipher: {decrypted}");
+                    break;
+                case "vigenere":
+                    cipher = new Vigenere();
+                    text = new Text(cipher);
+                    encrypted = text.Encrypt(input, key);
+                    decrypted = text.Decrypt(encrypted, key);
+                    Console.WriteLine($"Encrypted text using {cipherType} cipher: {encrypted}");
+                    Console.WriteLine($"Decrypted text using {cipherType} cipher: {decrypted}");
+                    break;
+                case "railfence":
+                    cipher = new RailFence();
+                    text = new Text(cipher);
+                    encrypted = text.Encrypt(input, key);
+                    decrypted = text.Decrypt(encrypted, key);
+                    Console.WriteLine($"Encrypted text using {cipherType} cipher: {encrypted}");
+                    Console.WriteLine($"Decrypted text using {cipherType} cipher: {decrypted}");
+                    break;
+                default:
+                    throw new ArgumentException("Invalid cipher type");
+            }
         }
     }
 }

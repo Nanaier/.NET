@@ -39,11 +39,8 @@ namespace lab3
                 key = Console.ReadLine();
             }
 
-            ICipher cipher = factory.CreateCipher(cipherType);
-            string encrypted = cipher.Encrypt(input, key);
-            string decrypted = cipher.Decrypt(encrypted, key);
-            Console.WriteLine($"Encrypted text using {cipherType} cipher: {encrypted}");
-            Console.WriteLine($"Decrypted text using {cipherType} cipher: {decrypted}");
+            factory.CreateCipher(cipherType, input, key);
+
         }
     }
 }
