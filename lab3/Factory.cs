@@ -5,61 +5,63 @@ using System.Linq;
 
 namespace lab3
 {
-    abstract class Ciphers
+    interface ICiphersFactory // Abstract Factory
     {
-        public abstract Encrypt CreateEncrypt();
-        public abstract Decrypt CreateDecrypt();
+        IEncrypt CreateEncrypt();
+        IDecrypt CreateDecrypt();
     }
 
-    class Cesar : Ciphers
+    class CesarFactory : ICiphersFactory // Concrete
     {
-        public override Encrypt CreateEncrypt()
+        public IEncrypt CreateEncrypt()
         {
             return new EncryptCesar();
         }
-        public override Decrypt CreateDecrypt()
+        public IDecrypt CreateDecrypt()
         {
             return new DecryptCesar();
         }
     }
 
-    class Vigenere : Ciphers
+    class VigenereFactory : ICiphersFactory
     {
-        public override Encrypt CreateEncrypt()
+        public IEncrypt CreateEncrypt()
         {
-            return new EncodeVigenere();
+            return new EncryptVigenere();
         }
-        public override Decrypt CreateDecrypt()
+        public IDecrypt CreateDecrypt()
         {
             return new DecryptVigenere();
         }
     }
 
-    class RailFence : Ciphers
+    class RailFenceFactory : ICiphersFactory
     {
-        public override Encrypt CreateEncrypt()
+        public IEncrypt CreateEncrypt()
         {
-            return new EncodeRailFence();
+            return new EncryptRailFence();
         }
-        public override Decrypt CreateDecrypt()
+        public IDecrypt CreateDecrypt()
         {
             return new DecryptRailFence();
         }
     }
 
-    abstract class Encrypt
+    public interface IEncrypt // Abstract Product
     {
-        public abstract string Encrypting(string plaintext, string key);
+        string Encrypting(string plaintext, string key);
+        void Interact(IDecrypt decrypt, string input, string key);
+
     }
 
-    abstract class Decrypt
+    public interface IDecrypt // Abstract Product
     {
-        public abstract string Decrypting(string ciphertext, string key);
+        string Decrypting(string ciphertext, string key);
     }
 
-    class EncryptCesar : Encrypt
+    class EncryptCesar : IEncrypt // Concrete Product
     {
-        public override string Encrypting(string plaintext, string key)
+        public string Encrypting(string plaintext, string key)
         {
             int shift = int.Parse(key);
             StringBuilder ciphertext = new StringBuilder();
@@ -80,11 +82,17 @@ namespace lab3
 
             return ciphertext.ToString();
         }
+
+        public void Interact(IDecrypt decrypt, string input, string key)
+        {
+            string plaintext = decrypt.Decrypting(input, key);
+            Console.WriteLine($"Decrypted text: {plaintext}");
+        }
     }
 
-    class DecryptCesar : Decrypt
+    class DecryptCesar : IDecrypt // Concrete Product
     {
-        public override string Decrypting(string ciphertext, string key)
+        public string Decrypting(string ciphertext, string key)
         {
             int shift = int.Parse(key);
             StringBuilder plaintext = new StringBuilder();
@@ -107,9 +115,9 @@ namespace lab3
         }
     }
 
-    class EncodeVigenere : Encrypt
-    {
-        public override string Encrypting(string plaintext, string key)
+    class EncryptVigenere : IEncrypt // Concrete Product
+    { 
+        public string Encrypting(string plaintext, string key)
         {
             for (int i = 0; i < key.Length; ++i)
                 if (!char.IsLetter(key[i]))
@@ -142,11 +150,16 @@ namespace lab3
         {
             return (a % b + b) % b;
         }
+        public void Interact(IDecrypt decrypt, string input, string key)
+        {
+            string plaintext = decrypt.Decrypting(input, key);
+            Console.WriteLine($"Decrypted text: {plaintext}");
+        }
     }
 
-    class DecryptVigenere : Decrypt
+    class DecryptVigenere : IDecrypt // Concrete Product
     {
-        public override string Decrypting(string ciphertext, string key)
+        public string Decrypting(string ciphertext, string key)
         {
             for (int i = 0; i < key.Length; ++i)
                 if (!char.IsLetter(key[i]))
@@ -183,9 +196,9 @@ namespace lab3
     }
 
 
-    class EncodeRailFence : Encrypt
+    class EncryptRailFence : IEncrypt // Concrete Product
     {
-        public override string Encrypting(string plaintext, string key)
+        public string Encrypting(string plaintext, string key)
         {
             int _rails = int.Parse(key);
             var railStr = new string[_rails];
@@ -205,11 +218,17 @@ namespace lab3
             }
             return railStr.Aggregate("", (x, y) => x + y);
         }
+
+        public void Interact(IDecrypt decrypt, string input, string key)
+        {
+            string plaintext = decrypt.Decrypting(input, key);
+            Console.WriteLine($"Decrypted text: {plaintext}");
+        }
     }
 
-    class DecryptRailFence : Decrypt
+    class DecryptRailFence : IDecrypt // Concrete Product
     {
-        public override string Decrypting(string ciphertext, string key)
+        public string Decrypting(string ciphertext, string key)
         {
             int _rails = int.Parse(key);
 
@@ -265,63 +284,29 @@ namespace lab3
             }
             return dumb.Select(s => s.Length).ToArray();
         }
+        
     }
 
-    class Text
+    class Text  //Client
     {
-        private Encrypt _encrypt;
-        private Decrypt _decrypt;
+        private IEncrypt _encrypt;
+        private IDecrypt _decrypt;
+        string _input;
+        string _key;
 
-        public Text(Ciphers cipher)
+        public Text(ICiphersFactory cipher, string input, string key)
         {
             _encrypt = cipher.CreateEncrypt();
             _decrypt = cipher.CreateDecrypt();
+            _input = input;
+            _key = key;
         }
 
-        public string Encrypt(string plaintext, string key)
+        public void Run()
         {
-            return _encrypt.Encrypting(plaintext, key);
-        }
-
-        public string Decrypt(string ciphertext, string key)
-        {
-            return _decrypt.Decrypting(ciphertext, key);
-        }
-    }
-
-    public class CipherFactory
-    {
-        public void CreateCipher(string cipherType, string input, string key)
-        {
-            switch (cipherType)
-            {
-                case "caesar":
-                    Ciphers cipher = new Cesar();
-                    Text text = new Text(cipher);
-                    string encrypted = text.Encrypt(input, key);
-                    string decrypted = text.Decrypt(encrypted, key);
-                    Console.WriteLine($"Encrypted text using {cipherType} cipher: {encrypted}");
-                    Console.WriteLine($"Decrypted text using {cipherType} cipher: {decrypted}");
-                    break;
-                case "vigenere":
-                    cipher = new Vigenere();
-                    text = new Text(cipher);
-                    encrypted = text.Encrypt(input, key);
-                    decrypted = text.Decrypt(encrypted, key);
-                    Console.WriteLine($"Encrypted text using {cipherType} cipher: {encrypted}");
-                    Console.WriteLine($"Decrypted text using {cipherType} cipher: {decrypted}");
-                    break;
-                case "railfence":
-                    cipher = new RailFence();
-                    text = new Text(cipher);
-                    encrypted = text.Encrypt(input, key);
-                    decrypted = text.Decrypt(encrypted, key);
-                    Console.WriteLine($"Encrypted text using {cipherType} cipher: {encrypted}");
-                    Console.WriteLine($"Decrypted text using {cipherType} cipher: {decrypted}");
-                    break;
-                default:
-                    throw new ArgumentException("Invalid cipher type");
-            }
+            string ciphertext = _encrypt.Encrypting(_input, _key);
+            Console.WriteLine($"Encrypted text: {ciphertext}");
+            _encrypt.Interact(_decrypt, ciphertext, _key);
         }
     }
 }
