@@ -44,17 +44,17 @@ namespace lab3
             {
                 case "caesar":
                     cipher = new CesarFactory();
-                    text = new Text(cipher, input, key);
+                    text = new Text(cipher, new Message(input, key));
                     text.Run();
                     break;
                 case "vigenere":
                     cipher = new VigenereFactory();
-                    text = new Text(cipher, input, key);
+                    text = new Text(cipher, new Message(input, key));
                     text.Run();
                     break;
                 case "railfence":
                     cipher = new RailFenceFactory();
-                    text = new Text(cipher, input, key);
+                    text = new Text(cipher, new Message(input, key));
                     text.Run();
                     break;
                 default:

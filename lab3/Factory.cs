@@ -291,23 +291,34 @@ namespace lab3
     {
         private IEncrypt _encrypt;
         private IDecrypt _decrypt;
-        string _input;
-        string _key;
+        Message _message;
 
-        public Text(ICiphersFactory cipher, string input, string key)
+        public Text(ICiphersFactory cipher, Message message)
         {
             _encrypt = cipher.CreateEncrypt();
             _decrypt = cipher.CreateDecrypt();
-            _input = input;
-            _key = key;
+            _message = message;
         }
 
         public void Run()
         {
-            string ciphertext = _encrypt.Encrypting(_input, _key);
+            string ciphertext = _encrypt.Encrypting(_message._input, _message._key);
             Console.WriteLine($"Encrypted text: {ciphertext}");
-            _encrypt.Interact(_decrypt, ciphertext, _key);
+            _encrypt.Interact(_decrypt, ciphertext, _message._key);
         }
     }
+
+    class Message 
+    {
+        public string _input;
+        public string _key;
+
+        public Message(string input, string key)
+        {
+            _input = input;
+            _key = key;
+        }
+    }
+
 }
 
