@@ -64,7 +64,7 @@ namespace lab4
 
         public override void Display()
         {
-            Console.WriteLine($"Position: {_name}, Number of Rates: {_numberOfRates}, Salary: {_salary}");
+            Console.WriteLine($"\tPosition: {_name}, Number of Rates: {_numberOfRates}, Salary: {_salary}");
         }
     }
 
@@ -93,7 +93,7 @@ namespace lab4
 
         public override string GetName()
         {
-            return _title;
+            return ($"{_title} ({_code})");
         }
 
         public override int GetNumberOfRates()
@@ -111,7 +111,10 @@ namespace lab4
             decimal totalSalary = 0.0M;
             foreach (var staffMember in _staffMembers)
             {
-                totalSalary += staffMember.GetSalary() * staffMember.GetNumberOfRates();
+                if (!staffMember.IsComposite())
+                    totalSalary += staffMember.GetSalary() * staffMember.GetNumberOfRates();
+                else
+                    totalSalary += staffMember.GetSalary();
             }
             return totalSalary;
         }
@@ -123,72 +126,34 @@ namespace lab4
 
         public override void Display()
         {
-            Console.WriteLine($"Structural Subdivision: {_title} ({_code}), Number of Positions: {_staffMembers.Count}, Number of Rates: {GetNumberOfRates()}, Total Salary: {GetSalary()}");
-            foreach (var staffMember in _staffMembers)
+            var stack = new Stack<(Staff, int)>();
+            stack.Push((this, 0));
+
+            while (stack.Count > 0)
             {
-                staffMember.Display();
+                var (staffMember, depth) = stack.Pop();
+
+                for (int i = 0; i < depth; i++)
+                {
+                    Console.Write('\t');
+                }
+
+                if (staffMember.IsComposite())
+                {
+                    Console.WriteLine($"Structure: {staffMember.GetName()}, Number of Positions: {staffMember.GetNumberOfRates()}, Total Salary: {staffMember.GetSalary()}");
+                    var composite = staffMember as StructuralSubdivision;
+                    for (int i = composite._staffMembers.Count - 1; i >= 0; i--)
+                    {
+                        stack.Push((composite._staffMembers[i], depth + 1));
+                    }
+                }
+                else
+                {
+                    staffMember.Display();
+                }
             }
         }
-    }
 
-    public class Corporation : Staff
-    {
-        private string _title;
-        private List<Staff> _subDivisions = new List<Staff>();
-
-        public Corporation(string title)
-        {
-            this._title = title;
-        }
-
-        public override void Add(Staff subDivision)
-        {
-            _subDivisions.Add(subDivision);
-        }
-
-        public override void Remove(Staff subDivision)
-        {
-            _subDivisions.Remove(subDivision);
-        }
-
-        public override string GetName()
-        {
-            return _title;
-        }
-
-        public override int GetNumberOfRates()
-        {
-            int totalNumberOfRates = 0;
-            foreach (var subDivision in _subDivisions)
-            {
-                totalNumberOfRates += subDivision.GetNumberOfRates();
-            }
-            return totalNumberOfRates;
-        }
-
-        public override decimal GetSalary()
-        {
-            decimal totalSalary = 0.0M;
-            foreach (var subDivision in _subDivisions)
-            {
-                totalSalary += subDivision.GetSalary();
-            }
-            return totalSalary;
-        }
-
-        public override bool IsComposite()
-        {
-            return true;
-        }
-
-        public override void Display()
-        {
-            Console.WriteLine($"Corporation name: {_title}, Number of Sub Divisions: {_subDivisions.Count}, Number of Rates: {GetNumberOfRates()}, Total Salary: {GetSalary()}");
-            foreach (var subDivision in _subDivisions)
-            {
-                subDivision.Display();
-            }
-        }
     }
 
     public class Client
